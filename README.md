@@ -3,7 +3,7 @@
 A modern, minimal **book reading application** built with React Native and Expo.  
 Designed to demonstrate clean architecture, state management, and real-world app features like reading progress, notes, and analytics.
 
-<video controls src="Record_2026-03-17-15-17-49_f73b71075b1de7323614b647fe394240.mp4" title="Title"></video>
+
 
 ## 📸 Screenshots
 
