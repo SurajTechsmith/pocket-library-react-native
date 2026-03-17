@@ -1,50 +1,106 @@
-# Welcome to your Expo app 👋
+# 📚 Pocket Library (React Native + Expo)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A modern, minimal **book reading application** built with React Native and Expo.  
+Designed to demonstrate clean architecture, state management, and real-world app features like reading progress, notes, and analytics.
 
-## Get started
+<video controls src="Record_2026-03-17-15-17-49_f73b71075b1de7323614b647fe394240.mp4" title="Title"></video>
 
-1. Install dependencies
+## 📸 Screenshots
 
-   ```bash
-   npm install
-   ```
+### 📚 Library
 
-2. Start the app
+![Library](Screenshot_2026-03-17-15-10-08-28_f73b71075b1de7323614b647fe394240.jpg)
 
-   ```bash
-   npx expo start
-   ```
+### 📖 Reader
 
-In the output, you'll find options to open the app in a
+![Reader](Screenshot_2026-03-17-15-00-10-94_f73b71075b1de7323614b647fe394240.jpg)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### 📝 Notes
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+![Notes](Screenshot_2026-03-17-15-14-21-58_f73b71075b1de7323614b647fe394240.jpg)
 
-## Get a fresh project
+### 📊 Stats
 
-When you're ready, run:
+![Stats](Screenshot_2026-03-17-15-10-13-36_f73b71075b1de7323614b647fe394240.jpg)
+
+## ✨ Features
+
+### 📚 Library / Shelf
+
+- Grid layout with book covers
+- Reading progress indicators
+- Sorting support
+- Import books from device
+- Long press to delete books
+
+### 📖 Reader (Core)
+
+- PDF / ePub rendering (WebView-based)
+- Page tracking
+- Bookmark toggle
+- Add notes per page
+- Theme switcher (light/dark)
+- Resume from last read page
+
+### 📝 Notes
+
+- View all notes & bookmarks per book
+- Grouped by page
+- Jump to page directly in reader
+
+### 🔍 Search
+
+- Search by title, author, and notes
+- Real-time filtering
+
+### 📊 Stats
+
+- Reading streak
+- Pages read today
+- Total reading time
+- Activity heatmap (last 52 weeks)
+
+### ℹ️ Book Detail
+
+- Title and author editing
+- Progress visualization
+- Bookmark & note counts
+- Quick access to reader
+
+## 🧱 Project Structure
+
+app/
+├── (tabs)/
+│ ├── index.tsx # Library / Shelf
+│ ├── search.tsx # Search
+│ ├── stats.tsx # Stats
+│
+├── reader/
+│ └── [id].tsx # Reader screen
+
+## 🚀 Getting Started
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🛠 Tech Stack
 
-## Learn more
+- React Native
+- Expo
+- Expo Router
+- WebView
+- Local storage / database
 
-To learn more about developing your project with Expo, look at the following resources:
+## 🧠 Development Priority
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1. Reader
+2. Notes
+3. Stats
+4. Search
+5. Book Detail
 
-## Join the community
+## 📄 License
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+MIT License

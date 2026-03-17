@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+  <head>
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #0a0a0a;
+      }
+      #canvas {
+        display: block;
+        touch-action: none;
+      }
+      #loading {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #52525b;
+        font-family: sans-serif;
+        font-size: 14px;
+        gap: 12px;
+      }
+      .spinner {
+        width: 32px;
+        height: 32px;
+        border: 2px solid #1f1f1f;
+        border-top-color: #f59e0b;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loading">
+      <div class="spinner"></div>
+      <span>Loading book...</span>
+    </div>
+    <canvas id="canvas"></canvas>
+
+    <script>
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+      let pdf = null;
+      let current = 1;
+      let total = 0;
+      let rendering = false;
+      let startX = 0;
+      let theme = "dark";
+
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      const loading = document.getElementById("loading");
+
+      // receive messages from React Native
+      window.addEventListener("message", async (e) => {
+        // log raw data first
+        window.ReactNativeWebView.postMessage(
+          JSON.stringify({
+            type: "JS_ERROR",
+            msg: "message received, data length: " + e.data.length,
+          }),
+        );
+
+        let msg;
+        try {
+          msg = JSON.parse(e.data);
+        } catch (err) {
+          window.ReactNativeWebView.postMessage(
+            JSON.stringify({
+              type: "JS_ERROR",
+              msg: "JSON parse failed: " + err.message,
+            }),
+          );
+          return;
+        }
+
+        window.ReactNativeWebView.postMessage(
+          JSON.stringify({
+            type: "JS_ERROR",
+            msg: "msg type is: " + msg.type + ", has base64: " + !!msg.base64,
+          }),
+        );
+
+        if (msg.type === "LOAD") {
+          try {
+            const bytes = base64ToBytes(msg.base64);
+            window.ReactNativeWebView.postMessage(
+              JSON.stringify({
+                type: "JS_ERROR",
+                msg: "bytes length: " + bytes.length,
+              }),
+            );
+
+            pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
+            total = pdf.numPages;
+            loading.style.display = "none";
+            await renderPage(current);
+          } catch (err) {
+            window.ReactNativeWebView.postMessage(
+              JSON.stringify({
+                type: "JS_ERROR",
+                msg: "LOAD error: " + err.message,
+              }),
+            );
+          }
+        }
+      });
+      function applyTheme(t) {
+        const bg =
+          t === "light" ? "#ffffff" : t === "sepia" ? "#f8f0e3" : "#0a0a0a";
+        document.body.style.background = bg;
+      }
+
+      async function renderPage(num) {
+        if (rendering || !pdf) return;
+        rendering = true;
+        try {
+          const page = await pdf.getPage(num);
+          const vp = page.getViewport({
+            scale: window.innerWidth / page.getViewport({ scale: 1 }).width,
+          });
+          canvas.width = vp.width;
+          canvas.height = vp.height;
+
+          // tint canvas for sepia
+          if (theme === "sepia") {
+            ctx.fillStyle = "#f8f0e3";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+          }
+
+          await page.render({ canvasContext: ctx, viewport: vp }).promise;
+          current = num;
+
+          // tell React Native page changed
+          window.ReactNativeWebView.postMessage(
+            JSON.stringify({
+              type: "PAGE_CHANGE",
+              page: current,
+              total: total,
+            }),
+          );
+        } finally {
+          rendering = false;
+        }
+      }
+
+      // swipe left = next, swipe right = prev
+      document.addEventListener(
+        "touchstart",
+        (e) => {
+          startX = e.touches[0].clientX;
+        },
+        { passive: true },
+      );
+
+      document.addEventListener("touchend", async (e) => {
+        const diff = startX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) < 60) return;
+        if (diff > 0 && current < total) await renderPage(current + 1);
+        if (diff < 0 && current > 1) await renderPage(current - 1);
+      });
+
+      function base64ToBytes(b64) {
+        const bin = atob(b64);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        return bytes;
+      }
+    </script>
+  </body>
+</html>
